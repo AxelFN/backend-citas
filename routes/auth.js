@@ -10,25 +10,32 @@ const Administrador = require('../models/Administrador');
 // 🔐 LOGIN
 router.post('/login', async (req, res) => {
   const { email, contrasena } = req.body;
-  console.log("Intento de login:", email);
+  console.log("➡️ Login request received:", email);
 
   try {
     let usuario = await Usuario.findOne({ email });
     let tipo = 'cliente';
 
     if (!usuario) {
+      console.log("🔍 No se encontró en clientes, buscando en admins...");
       usuario = await Administrador.findOne({ email });
       tipo = 'admin';
     }
 
     if (!usuario) {
+      console.log("❌ Usuario no encontrado");
       return res.status(400).json({ mensaje: 'Usuario no encontrado' });
     }
 
+    console.log("✅ Usuario encontrado:", usuario.email);
+
     const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
     if (!passwordValida) {
+      console.log("❌ Contraseña incorrecta");
       return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
     }
+
+    console.log("🔐 Contraseña válida, generando token...");
 
     const payload = {
       id: usuario._id,
@@ -36,10 +43,11 @@ router.post('/login', async (req, res) => {
       tipo,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET || 'claveSecretaPorDefecto', {
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'clavePorDefecto', {
       expiresIn: '6h',
     });
 
+    console.log("✅ Token generado");
     res.json({
       token,
       usuario: {
@@ -51,10 +59,11 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error al hacer login:", error);
-    res.status(500).json({ mensaje: 'Error del servidor' });
+    console.error("🔥 Error en /login:", error);
+    res.status(500).json({ mensaje: 'NEL' });
   }
 });
+
 
 
 
