@@ -12,56 +12,55 @@ router.post('/login', async (req, res) => {
   const { email, contrasena } = req.body;
 
   try {
+    // Primero busca en la colección de usuarios normales
     let usuario = await Usuario.findOne({ email });
     let tipo = 'cliente';
 
-    if (usuario) {
-      if (!usuario.contrasena || !contrasena) {
-        return res.status(400).json({ mensaje: 'Contraseña no válida' });
-      }
-
-      const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
-      if (!passwordValida) {
-        return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
-      }
-
-    } else {
+    // Si no lo encuentra, busca en la colección de administradores
+    if (!usuario) {
       usuario = await Administrador.findOne({ email });
       tipo = 'admin';
-
-     if (!usuario || !usuario.contrasena) {
-        return res.status(400).json({ mensaje: 'Usuario no encontrado o sin contraseña' });
-      }
-
-      const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
-      if (!passwordValida) {
-        return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
-      }
     }
 
+    // Si no se encuentra ningún usuario o no tiene contraseña, error
+    if (!usuario || !usuario.contrasena) {
+      return res.status(400).json({ mensaje: 'Usuario no encontrado o sin contraseña' });
+    }
+
+    // Compara la contraseña ingresada con la almacenada (cifrada)
+    const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!passwordValida) {
+      return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
+    }
+
+    // Crear el payload del JWT
     const payload = {
       id: usuario._id,
       rol: usuario.rol || tipo,
       tipo
     };
 
+    // Firmar el token con duración de 6h
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '6h' });
 
+    // Respuesta exitosa
     res.json({
       token,
+      tipo,
       usuario: {
+        id: usuario._id,
         nombre: usuario.nombre,
         email: usuario.email,
-        rol: usuario.rol || tipo,
-        tipo
+        rol: usuario.rol || tipo
       }
     });
 
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('Error al iniciar sesión:', error);
     res.status(500).json({ mensaje: 'Error del servidor' });
   }
 });
+
 
 
 // ✅ REGISTRO DE NUEVOS CLIENTES
