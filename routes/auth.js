@@ -29,11 +29,11 @@ router.post('/login', async (req, res) => {
       usuario = await Administrador.findOne({ email });
       tipo = 'admin';
 
-      if (!usuario || !usuario.password_hash) {
+     if (!usuario || !usuario.contrasena) {
         return res.status(400).json({ mensaje: 'Usuario no encontrado o sin contraseña' });
       }
 
-      const passwordValida = await bcrypt.compare(contrasena, usuario.password_hash);
+      const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
       if (!passwordValida) {
         return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
       }
