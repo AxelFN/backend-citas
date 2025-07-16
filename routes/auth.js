@@ -10,7 +10,8 @@ const Administrador = require('../models/Administrador');
 // 🔐 LOGIN
 router.post('/login', async (req, res) => {
   const { email, contrasena } = req.body;
-
+  console.log("Intentando iniciar sesión:", email);
+  
   try {
     // Primero busca en la colección de usuarios normales
     let usuario = await Usuario.findOne({ email });
