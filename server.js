@@ -26,7 +26,9 @@ app.use('/api/citas', require('./routes/citas'));
 
 //el puerto que se usara
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor en http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor en puerto ${PORT}`);
+});
 
 //Registros
 const citasRoutes = require('./routes/citas');
