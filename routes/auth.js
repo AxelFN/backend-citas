@@ -57,8 +57,8 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
-    res.status(500).json({ mensaje: 'Error del servidor' });
+  console.error('Error al iniciar sesión:', error);  
+  res.status(500).json({ mensaje: 'Error del servidor' });
   }
 });
 
