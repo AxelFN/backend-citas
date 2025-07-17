@@ -3,6 +3,35 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Cita = require('../models/Cita');
 
+// Verificar si ya existe una cita para un médico en una fecha específica
+router.get('/medico/:medicoId/fecha/:fecha', async (req, res) => {
+  try {
+    const { medicoId, fecha } = req.params;
+
+    const fechaSeleccionada = new Date(fecha);
+    const horaInicio = new Date(fechaSeleccionada);
+    const horaFin = new Date(fechaSeleccionada);
+    horaFin.setMinutes(horaFin.getMinutes() + 59); // Rango de 1 hora
+
+    const citaExistente = await Cita.findOne({
+      medico: medicoId,
+      fecha: {
+        $gte: horaInicio,
+        $lte: horaFin
+      }
+    });
+
+    if (citaExistente) {
+      return res.json({ existe: true });
+    } else {
+      return res.json({ existe: false });
+    }
+  } catch (error) {
+    console.error("Error al verificar cita:", error);
+    res.status(500).json({ mensaje: "Error al verificar disponibilidad de cita" });
+  }
+});
+
 // Crear nueva cita
 router.post('/', auth, async (req, res) => {
   try {
@@ -58,9 +87,7 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-module.exports = router;
-
-// Obtener todas las citas
+// Obtener todas las citas (para panel admin)
 router.get('/todas', auth, async (req, res) => {
   try {
     const citas = await Cita.find()
@@ -75,7 +102,7 @@ router.get('/todas', auth, async (req, res) => {
   }
 });
 
-// Actualizar estado de cita
+// Actualizar estado de cita (aceptar, cancelar, etc.)
 router.patch('/:id', auth, async (req, res) => {
   try {
     const { estatus } = req.body;
@@ -86,3 +113,6 @@ router.patch('/:id', auth, async (req, res) => {
     res.status(500).json({ mensaje: 'Error al actualizar cita' });
   }
 });
+
+module.exports = router;
+
