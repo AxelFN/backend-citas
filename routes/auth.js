@@ -60,7 +60,7 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error("🔥 Error en /login:", error);
-    res.status(500).json({ mensaje: 'NEL' });
+    res.status(500).json({ mensaje: 'NEL Pastel' });
   }
 });
 
