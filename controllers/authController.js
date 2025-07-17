@@ -15,7 +15,7 @@ exports.registrar = async (req, res) => {
 
     res.status(201).json({ msg: 'Usuario registrado correctamente' });
   } catch (error) {
-    res.status(500).json({ msg: 'NEL' });
+    res.status(500).json({ msg: 'PASTEL' });
   }
 };
 
